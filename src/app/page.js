@@ -6,11 +6,14 @@ import SingleRow from "../../Components/SingleRow";
 import ProductList from "../../Components/ProductList";
 import { useSearchParams } from "next/navigation";
 import { formatData } from "../../Components/CommonFunc";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 const Page = () => {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const search = searchParams.get('id')
-  const [data, setData] = useState({ Subform: [], Total_Remaining_Quantity: 0, Total_Quantity_Selected: 0 ,Packaging_Details:[], Date_field: moment().format("DD-MMM-YYYY")});
+  const [data, setData] = useState({ Subform: [], Total_Remaining_Quantity: 0,Blend_Quantity_in_kg:0, Total_Quantity_Selected: 0 ,Packaging_Details:[], Date_field: moment().format("DD-MMM-YYYY")});
   const [gardenList, setGardenList] = useState();
   const [packingList, setPackingList] = useState();
   const [tempList, setTempList] = useState([]);
@@ -55,9 +58,15 @@ const Page = () => {
           {data:{...data,"type_field": type,"Total_Quantity_Selected":Number(data?.Total_Quantity_Selected).toFixed(2),"Total_Remaining_Quantity":Number(data?.Total_Remaining_Quantity ?? 0).toFixed(2),"Remaining_Quantity1":"0.00"}}
         );
       }
-      console.log(response)
+      setData({ Subform: [], Total_Remaining_Quantity: 0,Blend_Quantity_in_kg:0, Total_Quantity_Selected: 0 ,Packaging_Details:[], Date_field: moment().format("DD-MMM-YYYY")})
+      toast.success("Data Added Sucessfully!");
+      setTimeout(()=>{
+        window.location.reload();
+      },[3000])
+
     }catch(e){
       console.log(e)
+      toast.error("Something Went Wrong!")
     }
   }
 

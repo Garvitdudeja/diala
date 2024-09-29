@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { toast } from "react-toastify";
 
 const SingleRow = (props) => {
-  const [listData, setListData] = useState(props?.listData.lenght > 0 ?[...props?.listData]: [{index:"0"}] );
+  const [listData, setListData] = useState(props?.listData.lenght > 0 ?[...props?.listData]: [{index:"0",Required_Quantity:0}] );
   const [data, setData] = useState({});
   const [gradeList, setGradeList] = useState();
   const getDocuments = async (garden = "", grade = "") => {
@@ -59,6 +59,11 @@ const SingleRow = (props) => {
         return;
       }
       if (label == "Required_Quantity") {
+        const selectedItem = listData.find(item=>item?.Batch_ID==id);
+        if(value> selectedItem?.Available_Quantity ){
+          toast.error("Required Quantity cannot be greater then Available Quantity ")
+          return
+        }
         setListData((prev) =>
           prev.map((item) =>
             item.Batch_ID === id
@@ -89,7 +94,7 @@ const SingleRow = (props) => {
               Item_ID: item?.Item_ID,
               Product_Name: item?.Product_Name,
               Inv_No: ele?.Batch_No,
-              Select_Item: "true",  
+              Select_Item: false,  
             })
           );
         });
@@ -113,8 +118,19 @@ const SingleRow = (props) => {
   };
   const updateFinalData = (id, value = true) => {
     const selectedItem = listData.find((item) => item.Batch_ID == id);
+    if (
+      !selectedItem?.Required_Quantity ||
+      selectedItem?.Required_Quantity == 0) {
+      toast.error("Required Quantity should not be empty!");
+      return;
+    }
+    if(selectedItem?.Required_Quantity > props?.data?.Blend_Quantity_in_kg){
+      toast.error("Selected Quantity is greater than the Blend Quantity. Please select a quantity less than or equal to the Blend Quantity");
+      return
+    }
     selectedItem.PK = Number((selectedItem?.Available_Quantity ?? 0) / Number(selectedItem?.Qty_per_Bag ?? 1)).toFixed(2)
     selectedItem.Nett = selectedItem.Qty_per_Bag
+    selectedItem.Select_Item = "true"
     delete selectedItem.Batch_No
     delete selectedItem.Bill_No
     delete selectedItem.Bill_ID
@@ -122,13 +138,12 @@ const SingleRow = (props) => {
     delete selectedItem.Grade
     // delete selectedItem.Qty_per_Bag
     delete selectedItem.W_h 
-    if (
-      !selectedItem?.Required_Quantity ||
-      selectedItem?.Required_Quantity == 0
-    ) {
-      toast.error("Required Quantity should not be empty!");
-      return;
-    }
+    updateProductForm(
+      "Select_Item",
+      value,
+      id
+    );
+
     if (value) {
 
       props?.updateData((prev) => ({
@@ -171,6 +186,7 @@ const SingleRow = (props) => {
     <>
       {listData?.map((item) => (
         <tr key={item?.Batch_ID}>
+          {console.log(item,"itemmmmmmmm")}
           <td className="px-4 py-2">
             <select
               name="garden"
@@ -239,7 +255,7 @@ const SingleRow = (props) => {
             <input
               type="number"
               disabled
-              value={(item?.Available_Quantity ?? 0) / (item?.Qty_per_Bag ?? 1)}
+              value={Number((item?.Available_Quantity ?? 0) / (item?.Qty_per_Bag ?? 1)).toFixed(2)}
               // onChange={(e)=>{ updateProductForm("Required_Quantity", e.target.value, item?.Batch_ID);}}
               className="border border-gray-300 p-2 rounded-lg w-full"
             />
@@ -277,13 +293,8 @@ const SingleRow = (props) => {
           <td className="px-4 py-2">
             <input
               type="checkbox"
-              value={item?.Select_Item ?? false}
+              checked={item?.Select_Item ?? false}
               onChange={(e) => {
-                updateProductForm(
-                  "Select_Item",
-                  e.target.checked,
-                  item?.Batch_ID
-                );
                 updateFinalData(item?.Batch_ID, e.target.checked);
               }}
               className="border border-gray-300 p-2 rounded-lg w-full"
