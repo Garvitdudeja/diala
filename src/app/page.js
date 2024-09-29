@@ -49,7 +49,7 @@ const Page = () => {
       if(!search){
         const response = await axios.post(
           process.env.NEXT_PUBLIC_BASE_URL + "creator/",
-          {data:{...data,"type_field": type,"Total_Quantity_Selected":Number(data?.Total_Quantity_Selected).toFixed(2),"Total_Remaining_Quantity":Number(data?.Total_Remaining_Quantity ?? 0).toFixed(2),"Remaining_Quantity1":"0.00"}}
+          {data:{...data,"type_field": type,"Total_Quantity_Selected":Number(data?.Total_Quantity_Selected).toFixed(2),"Total_Remaining_Quantity":Number(data?.Total_Remaining_Quantity ?? 0).toFixed(2),"Remaining_Quantity1":"0.00",Total_Qty_be_packed_in_kgs: data?.Blend_Quantity_in_kg}}
         );
       }
       else{
@@ -357,7 +357,7 @@ const Page = () => {
                 Net Qty. per Sack (in kgs)
               </label>
               <input
-                onChange={(e) => { setData(prev => ({ ...prev, Net_Qty_per_P_Sacks: e.target.value })) }}
+                onChange={(e) => { setData(prev => ({ ...prev, Net_Qty_per_P_Sacks: e.target.value, Total_Qty_PSacks: Number((prev?.Blend_Quantity_in_kg ?? 0)/ (e.target.value ?? 1)).toFixed(2) })) }}
                 value={data?.Net_Qty_per_P_Sacks}
                 type="number"
                 className="border border-gray-300 p-3 rounded-lg w-full"
@@ -384,8 +384,9 @@ const Page = () => {
               </label>
               <input
                 type="number"
+                disabled
                 onChange={(e) => { setData(prev => ({ ...prev, Total_Qty_be_packed_in_kgs: e.target.value })) }}
-                value={data?.Total_Qty_be_packed_in_kgs}
+                value={data?.Blend_Quantity_in_kg}
                 className="border border-gray-300 p-3 rounded-lg w-full"
                 placeholder="Enter total quantity to be packed"
               />
@@ -410,8 +411,9 @@ const Page = () => {
               </label>
               <input
                 type="number"
-                onChange={(e) => { setData(prev => ({ ...prev, Net_Qty_per_P_Sacks: e.target.value })) }}
-                value={data?.Net_Qty_per_P_Sacks}
+                disabled
+                onChange={(e) => { setData(prev => ({ ...prev, Total_Qty_PSacks: e.target.value })) }}
+                value={data?.Total_Qty_PSacks}
                 className="border border-gray-300 p-3 rounded-lg w-full"
                 placeholder="Enter total quantity of sacks"
               />
