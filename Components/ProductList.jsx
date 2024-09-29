@@ -1,7 +1,14 @@
 import axios from 'axios';
 import React, { useState } from 'react'
+import { toast } from 'react-toastify';
 
 const ProductList = (props) => {
+  const handleRemove = (id)=>{
+    props.updateData(prev=>{
+      const updatedList  = prev.Packaging_Details.filter(item=>item?.Item_ID != id);
+      return {...prev, Packaging_Details: updatedList}
+  })
+  }
     const getPackingDetails = async (item = "", id) => {
         try {
           const itemInfo = await axios.post(
@@ -10,7 +17,7 @@ const ProductList = (props) => {
           );
           const data = itemInfo.data
           props.updateData(prev=>{
-            const updatedList  = prev.Packaging_Details.map(item=>(item?.Item_ID == id ? {Unit: data?.unit,Item_ID:data?.item_id,Product_Name1:data?.item_name,Available_Quantity:data?.available_stock,Select_Product:false }: item ))
+            const updatedList  = prev.Packaging_Details.map(item=>(item?.Item_ID == id ? {Unit: data?.unit,Item_ID:data?.item_id,Product_Name1:data?.item_name,Available_Quantity:Number(data?.available_stock).toFixed(2),Select_Product:false }: item ))
             return {...prev, Packaging_Details: updatedList}
         })
         } catch (e) {
@@ -19,6 +26,10 @@ const ProductList = (props) => {
       };
       const updatePackingDetails = (label, value, id)=>{
         if(label == "Required_Quantity"){
+          if(value > Number(props?.item?.Available_Quantity)){
+            toast.error("Required QTY cannot be greater then Available Quantity")
+            return
+          }
           value = Number(value).toFixed(2);
         }
         props.updateData(prev=>{
@@ -80,7 +91,7 @@ const ProductList = (props) => {
       />
     </td>
     <td className="px-4 py-2">
-     <button className='bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition'>Remove</button>
+     <button className='bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition' onClick={()=>handleRemove(props?.item?.Item_ID)}>Remove</button>
     </td>
   </tr></>
   )
