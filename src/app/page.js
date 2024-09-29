@@ -278,6 +278,7 @@ const Page = () => {
             setTempList((prev) => [...prev, {}]);
           }}
         >
+        {console.log(tempList)}
           + Add Tea Item
         </button>
 

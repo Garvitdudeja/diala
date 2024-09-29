@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { toast } from "react-toastify";
 
 const SingleRow = (props) => {
-  const [listData, setListData] = useState([...(props?.listData)]);
+  const [listData, setListData] = useState(props?.listData.lenght > 0 ?[...props?.listData]: [{index:"0"}] );
   const [data, setData] = useState({});
   const [gradeList, setGradeList] = useState();
   const getDocuments = async (garden = "", grade = "") => {
