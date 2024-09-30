@@ -76,8 +76,9 @@ const Page = () => {
       process.env.NEXT_PUBLIC_BASE_URL + "creator/edit/"+ id
     );
     response.data = formatData(response?.data)
-    setTempList(response.data.Subform)
-    setListData(response.data.Subform)
+    console.log(response.data.Subform,"tempList")
+    setTempList([...response.data.Subform])
+    // setListData(response.data.Subform)
     const fixData = {...response.data,Packaging_Details: response.data.Packaging_Details.map(item=>({...item,Available_Quantity:Number(item.Available_Quantity)})) } 
     setData(fixData);
   }
@@ -271,6 +272,7 @@ const Page = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {tempList?.map((item) => (
                   <SingleRow
+                  single={item}
                     data={data}
                     listData={listData}
                     gardenList={gardenList}
@@ -284,6 +286,7 @@ const Page = () => {
         <button
           className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition"
           onClick={() => {
+            console.log(tempList,"lisssssssssssssssss")
             setTempList((prev) => [...prev, {}]);
           }}
         >
@@ -330,7 +333,7 @@ const Page = () => {
             setData((prev) => ({...prev,Packaging_Details: [...prev?.Packaging_Details,{}]}));
           }}
         >
-          + Add Tea Item
+          + Add Packaging Item
         </button>
 
         {/* Packing Details */}

@@ -1,10 +1,12 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 const SingleRow = (props) => {
-  const [listData, setListData] = useState(props?.listData.lenght > 0 ?[...props?.listData]: [{index:"0",Required_Quantity:0}] );
+  console.log(props,"propssssssss")
+  const [listData, setListData] = useState(props?.single > 0 ?[{...props?.single}]: [{index:"0",Required_Quantity:0}] );
   const [data, setData] = useState({});
+  console.log(listData,"listData")
   const [gradeList, setGradeList] = useState();
   const getDocuments = async (garden = "", grade = "") => {
     try {
@@ -182,6 +184,10 @@ const SingleRow = (props) => {
     console.log(listData,"Dtaaaaaaaaaaaaaaaaa")
   };
 
+  useEffect(()=>{
+    setListData([{...props?.single}])
+  },[props?.single])
+
   return (
     <>
       {listData?.map((item) => (
@@ -341,5 +347,10 @@ const SingleRow = (props) => {
     </>
   );
 };
+
+// const SingleRow = (props)=>{
+//   console.log(props)
+// return <>1</>
+// }
 
 export default SingleRow;
