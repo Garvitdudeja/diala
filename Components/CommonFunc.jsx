@@ -23,6 +23,7 @@ const formatData = (data)=>{
         return item
     })
     newData.Subform = Subform
+    newData.Packaging_Details = Packaging_Details
     return newData
     
 }

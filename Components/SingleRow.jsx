@@ -186,6 +186,7 @@ const SingleRow = (props) => {
 
   useEffect(()=>{
     setListData([{...props?.single}])
+    getGrades(props?.single?.Garden2)
   },[props?.single])
 
   return (
