@@ -12,7 +12,7 @@ const formatData = (data)=>{
        delete item.ID
        delete item.zc_display_value
        item.Qty_per_Bag = item.Nett
-       item.Select_Item = true
+    item.Select_Item = true
        return item
     })
     const Packaging_Details = data?.Packaging_Details.map((item)=>{

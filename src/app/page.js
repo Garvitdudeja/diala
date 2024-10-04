@@ -39,9 +39,26 @@ const Page = () => {
       console.log(e);
     }
   }
+
+  const [last, setLast] = useState()
+
+  const getLastSynced = async () => {
+    try {
+      const response = await axios.get(
+        process.env.NEXT_PUBLIC_BASE_URL + "sync/last"
+      );
+      setLast(response)
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  console.log()
+
   useEffect(() => {
     getGardens();
     getPackingItems();
+    getLastSynced();
   }, []);
 
   const submitData = async(type)=>{
@@ -96,17 +113,43 @@ const Page = () => {
       getEditData(search);
     }
   },[search])
+
+  const hanldeSync = async()=>{
+    try{
+      const response = await axios.get(
+        process.env.NEXT_PUBLIC_BASE_URL + "sync"
+      );
+      toast.success("Successfully synced")
+    }
+    catch(e){
+      toast.error("Something Went Wrong While Syncing!")
+      console.log(e)
+    }
+  }
+
   return (
     <div className="p-6 mx-auto space-y-6">
       {/* Tea Blending Section */}
-      <div className="bg-gray-100 p-6 rounded-lg shadow-md">
-        <h1 className="text-2xl font-semibold mb-4">Tea Blending</h1>
-        <div className="flex items-center gap-4">
-          <button className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition">
-            Sync
-          </button>
-        </div>
-      </div>
+      <div className="p-6 mx-auto space-y-6">
+  {/* Tea Blending Section */}
+  <div className="bg-gray-100 p-6 rounded-lg shadow-md flex flex-row items-center justify-between">
+    <h1 className="text-2xl font-semibold">Tea Blending</h1>
+    <div className="flex items-center gap-4">
+      <button 
+        className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition" 
+        onClick={() => { handleSync() }}
+      >
+        Sync
+      </button>
+      <h3 className="text-gray-700">
+        {last?.data?.lastSyncTime?.length > 0 
+          ? last?.data?.lastSyncTime[last?.data?.lastSyncTime.length - 1] 
+          : "Not Synced Today"}
+      </h3>
+    </div>
+  </div>
+</div>
+
 
       {/* Create Blend Section */}
       <div className="bg-gray-100 p-6 rounded-lg shadow-md">
