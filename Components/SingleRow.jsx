@@ -21,6 +21,9 @@ const SingleRow = (props) => {
   };
   const getGrades = async (garden = "") => {
     try {
+      if(garden== "" || !garden){
+        return
+      }
       const gradeList = await axios.post(
         process.env.NEXT_PUBLIC_BASE_URL + "grades",
         { garden: garden }
@@ -126,7 +129,7 @@ const SingleRow = (props) => {
       toast.error("Required Quantity should not be empty!");
       return;
     }
-    if(selectedItem?.Required_Quantity > props?.data?.Blend_Quantity_in_kg){
+    if(Number(selectedItem?.Required_Quantity) > Number(props?.data?.Blend_Quantity_in_kg)){
       toast.error("Selected Quantity is greater than the Blend Quantity. Please select a quantity less than or equal to the Blend Quantity");
       return
     }

@@ -6,6 +6,9 @@ const SubForm = (props) => {
   const [gradeList, setGradeList] = useState();
   const getGrades = async (garden = "") => {
     try {
+      if(garden == "" || !garden){
+        return
+      }
       const gradeList = await axios.post(
         process.env.NEXT_PUBLIC_BASE_URL + "grades",
         { garden: garden }

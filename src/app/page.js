@@ -46,6 +46,11 @@ const Page = () => {
 
   const submitData = async(type)=>{
     try{
+      if(!data?.Blend_Quantity_in_kg || Number(data?.Blend_Quantity_in_kg)==0){
+        toast.error("Add atleast on Item");
+        return
+      }
+
       if(!search){
         const response = await axios.post(
           process.env.NEXT_PUBLIC_BASE_URL + "creator/",
