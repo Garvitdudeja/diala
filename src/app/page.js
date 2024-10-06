@@ -10,14 +10,21 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 
 const Page = () => {
-  const searchParams = useSearchParams()
-  const router = useRouter()
-  const search = searchParams.get('id')
-  const [data, setData] = useState({ Subform: [], Total_Remaining_Quantity: 0,Blend_Quantity_in_kg:0, Total_Quantity_Selected: 0 ,Packaging_Details:[], Date_field: moment().format("DD-MMM-YYYY")});
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const search = searchParams.get("id");
+  const [data, setData] = useState({
+    Subform: [],
+    Total_Remaining_Quantity: 0,
+    Blend_Quantity_in_kg: 0,
+    Total_Quantity_Selected: 0,
+    Packaging_Details: [],
+    Date_field: moment().format("DD-MMM-YYYY"),
+  });
   const [gardenList, setGardenList] = useState();
   const [packingList, setPackingList] = useState();
   const [tempList, setTempList] = useState([]);
-  const [listData,setListData] = useState([]);
+  const [listData, setListData] = useState([]);
   const getGardens = async () => {
     try {
       const gardenList = await axios.get(
@@ -38,22 +45,22 @@ const Page = () => {
     } catch (e) {
       console.log(e);
     }
-  }
+  };
 
-  const [last, setLast] = useState()
+  const [last, setLast] = useState();
 
   const getLastSynced = async () => {
     try {
       const response = await axios.get(
         process.env.NEXT_PUBLIC_BASE_URL + "sync/last"
       );
-      setLast(response)
+      setLast(response);
     } catch (e) {
       console.log(e);
     }
-  }
+  };
 
-  console.log()
+  console.log();
 
   useEffect(() => {
     getGardens();
@@ -61,96 +68,142 @@ const Page = () => {
     getLastSynced();
   }, []);
 
-  const submitData = async(type)=>{
-    try{
-      if(!data?.Blend_Quantity_in_kg || Number(data?.Blend_Quantity_in_kg)==0){
+  const submitData = async (type) => {
+    try {
+      if (
+        !data?.Blend_Quantity_in_kg ||
+        Number(data?.Blend_Quantity_in_kg) == 0
+      ) {
         toast.error("Add atleast on Item");
-        return
+        return;
       }
 
-      if(!search){
+      if (!search) {
         const response = await axios.post(
           process.env.NEXT_PUBLIC_BASE_URL + "creator/",
-          {data:{...data,"type_field": type,"Total_Quantity_Selected":Number(data?.Total_Quantity_Selected).toFixed(2),"Total_Remaining_Quantity":Number(data?.Total_Remaining_Quantity ?? 0).toFixed(2),"Remaining_Quantity1":"0.00",Total_Qty_be_packed_in_kgs: data?.Blend_Quantity_in_kg}}
+          {
+            data: {
+              ...data,
+              type_field: type,
+              Total_Quantity_Selected: Number(
+                data?.Total_Quantity_Selected
+              ).toFixed(2),
+              Total_Remaining_Quantity: Number(
+                data?.Total_Remaining_Quantity ?? 0
+              ).toFixed(2),
+              Remaining_Quantity1: "0.00",
+              Total_Qty_be_packed_in_kgs: data?.Blend_Quantity_in_kg,
+            },
+          }
         );
-      }
-      else{
+      } else {
         const response = await axios.put(
-          process.env.NEXT_PUBLIC_BASE_URL + "creator/"+search,
-          {data:{...data,"type_field": type,"Total_Quantity_Selected":Number(data?.Total_Quantity_Selected).toFixed(2),"Total_Remaining_Quantity":Number(data?.Total_Remaining_Quantity ?? 0).toFixed(2),"Remaining_Quantity1":"0.00"}}
+          process.env.NEXT_PUBLIC_BASE_URL + "creator/" + search,
+          {
+            data: {
+              ...data,
+              type_field: type,
+              Total_Quantity_Selected: Number(
+                data?.Total_Quantity_Selected
+              ).toFixed(2),
+              Total_Remaining_Quantity: Number(
+                data?.Total_Remaining_Quantity ?? 0
+              ).toFixed(2),
+              Remaining_Quantity1: "0.00",
+            },
+          }
         );
       }
-      setData({ Subform: [], Total_Remaining_Quantity: 0,Blend_Quantity_in_kg:0, Total_Quantity_Selected: 0 ,Packaging_Details:[], Date_field: moment().format("DD-MMM-YYYY")})
+      setData({
+        Subform: [],
+        Total_Remaining_Quantity: 0,
+        Blend_Quantity_in_kg: 0,
+        Total_Quantity_Selected: 0,
+        Packaging_Details: [],
+        Date_field: moment().format("DD-MMM-YYYY"),
+      });
       toast.success("Data Added Sucessfully!");
-      setTimeout(()=>{
+      setTimeout(() => {
         window.location.reload();
-      },[3000])
-
-    }catch(e){
-      console.log(e)
-      toast.error("Something Went Wrong!")
+      }, [3000]);
+    } catch (e) {
+      console.log(e);
+      toast.error("Something Went Wrong!");
     }
-  }
+  };
 
-  const getEditData = async(id)=>{
-  try{
-    const response = await axios.get(
-      process.env.NEXT_PUBLIC_BASE_URL + "creator/edit/"+ id
-    );
-    response.data = formatData(response?.data)
-    console.log(response.data.Subform,"tempList")
-    setTempList([...response.data.Subform])
-    // setListData(response.data.Subform)
-    const fixData = {...response.data,Packaging_Details: response.data.Packaging_Details.map(item=>({...item,Available_Quantity:Number(item.Available_Quantity)})) } 
-    setData(fixData);
-  }
-  catch(e){
-    console.log(e)
-  }
-  }
-  useEffect(()=>{
-    if(search){
+  const getEditData = async (id) => {
+    try {
+      const response = await axios.get(
+        process.env.NEXT_PUBLIC_BASE_URL + "creator/edit/" + id
+      );
+      response.data = formatData(response?.data);
+      console.log(response.data.Subform, "tempList");
+      setTempList([...response.data.Subform]);
+      // setListData(response.data.Subform)
+      const fixData = {
+        ...response.data,
+        Packaging_Details: response.data.Packaging_Details.map((item) => ({
+          ...item,
+          Available_Quantity: Number(item.Available_Quantity),
+        })),
+      };
+      setData(fixData);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  useEffect(() => {
+    if (search) {
       getEditData(search);
     }
-  },[search])
+  }, [search]);
 
-  const handleSync = async()=>{
-    try{
+  const handleSync = async () => {
+    try {
       const response = await axios.get(
         process.env.NEXT_PUBLIC_BASE_URL + "sync"
       );
-      toast.success("Successfully synced")
+      toast.success("Successfully synced");
+    } catch (e) {
+      console.log(e.response.data.error);
+      toast.error(
+        e?.response?.data?.error ?? "Something Went Wrong While Syncing!"
+      );
+      console.log(e);
     }
-    catch(e){
-      console.log(e.response.data.error)
-      toast.error(e?.response?.data?.error ?? "Something Went Wrong While Syncing!")
-      console.log(e)
-    }
-  }
+  };
 
   return (
     <div className="p-6 mx-auto space-y-6">
       {/* Tea Blending Section */}
       <div className="p-6 mx-auto space-y-6">
-  {/* Tea Blending Section */}
-  <div className="bg-gray-100 p-6 rounded-lg shadow-md flex flex-row items-center justify-between">
-    <h1 className="text-2xl font-semibold">Tea Blending</h1>
-    <div className="flex items-center gap-4">
-      <button 
-        className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition" 
-        onClick={() => { handleSync() }}
-      >
-        Sync
-      </button>
-      <h3 className="text-gray-700">
-        {last?.data?.lastSyncTime?.length > 0 
-          ? last?.data?.lastSyncTime[last?.data?.lastSyncTime.length - 1] 
-          : "Not Synced Today"}
-      </h3>
-    </div>
-  </div>
-</div>
-
+        {/* Tea Blending Section */}
+        <div className="bg-gray-100 p-6 rounded-lg shadow-md flex flex-row items-center justify-between">
+          <h1 className="text-2xl font-semibold">Tea Blending</h1>
+          <div className="flex items-center gap-4">
+            <button
+              className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition"
+              onClick={() => {
+                handleSync();
+              }}
+            >
+              Sync
+            </button>
+            <h3 className="text-gray-700">
+              {last?.data?.lastSyncTime?.length > 0
+                ? moment(
+                    last?.data?.lastSyncTime[
+                      last?.data?.lastSyncTime.length - 1
+                    ]
+                  )
+                    .utcOffset("+05:30") // New Delhi time zone
+                    .format("YYYY-MM-DD HH:mm:ss")
+                : "Not Synced Today"}
+            </h3>
+          </div>
+        </div>
+      </div>
 
       {/* Create Blend Section */}
       <div className="bg-gray-100 p-6 rounded-lg shadow-md">
@@ -182,7 +235,11 @@ const Page = () => {
                   Date_field: moment(e.target.value).format("DD-MMM-YYYY"),
                 }))
               }
-              value={data?.Date_field ? moment(data.Date_field, "DD-MMM-YYYY").format("YYYY-MM-DD") : ""}
+              value={
+                data?.Date_field
+                  ? moment(data.Date_field, "DD-MMM-YYYY").format("YYYY-MM-DD")
+                  : ""
+              }
               className="border border-gray-300 p-3 rounded-lg w-full"
             />
           </div>
@@ -211,7 +268,9 @@ const Page = () => {
                 setData((prev) => ({
                   ...prev,
                   Blend_Quantity_in_kg: e.target.value,
-                  Total_Remaining_Quantity: (e.target.value ?? 0) - (prev?.Total_Quantity_Selected ?? 0)
+                  Total_Remaining_Quantity:
+                    (e.target.value ?? 0) -
+                    (prev?.Total_Quantity_Selected ?? 0),
                 }))
               }
               value={data?.Blend_Quantity_in_kg}
@@ -321,7 +380,7 @@ const Page = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {tempList?.map((item) => (
                   <SingleRow
-                  single={item}
+                    single={item}
                     data={data}
                     listData={listData}
                     gardenList={gardenList}
@@ -335,12 +394,11 @@ const Page = () => {
         <button
           className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition"
           onClick={() => {
-            console.log(tempList,"lisssssssssssssssss")
+            console.log(tempList, "lisssssssssssssssss");
             setTempList((prev) => [...prev, {}]);
           }}
         >
-        {console.log(tempList)}
-          + Add Tea Item
+          {console.log(tempList)}+ Add Tea Item
         </button>
 
         {/* PackingItemSection */}
@@ -350,20 +408,23 @@ const Page = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-2 text-left text-gray-600">Product Name	</th>
+                  <th className="px-4 py-2 text-left text-gray-600">
+                    Product Name{" "}
+                  </th>
                   <th className="px-4 py-2 text-left text-gray-600">Unit</th>
-                  <th className="px-4 py-2 text-left text-gray-600">Available Qty	</th>
-                  <th className="px-4 py-2 text-left text-gray-600">Required Qty	</th>
+                  <th className="px-4 py-2 text-left text-gray-600">
+                    Available Qty{" "}
+                  </th>
+                  <th className="px-4 py-2 text-left text-gray-600">
+                    Required Qty{" "}
+                  </th>
                   <th className="px-4 py-2 text-left text-gray-600">
                     Select Item
                   </th>
-                  <th className="px-4 py-2 text-left text-gray-600">
-                    Actions
-                  </th>
+                  <th className="px-4 py-2 text-left text-gray-600">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-
                 {data?.Packaging_Details?.map((item) => (
                   <ProductList
                     data={data}
@@ -379,7 +440,10 @@ const Page = () => {
         <button
           className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition"
           onClick={() => {
-            setData((prev) => ({...prev,Packaging_Details: [...prev?.Packaging_Details,{}]}));
+            setData((prev) => ({
+              ...prev,
+              Packaging_Details: [...prev?.Packaging_Details, {}],
+            }));
           }}
         >
           + Add Packaging Item
@@ -395,7 +459,9 @@ const Page = () => {
             <div>
               <label className="block text-gray-700 mb-2">STD</label>
               <input
-                onChange={(e) => { setData(prev => ({ ...prev, STD: e.target.value })) }}
+                onChange={(e) => {
+                  setData((prev) => ({ ...prev, STD: e.target.value }));
+                }}
                 value={data?.STD}
                 type="text"
                 className="border border-gray-300 p-3 rounded-lg w-full"
@@ -409,7 +475,15 @@ const Page = () => {
                 Net Qty. per Sack (in kgs)
               </label>
               <input
-                onChange={(e) => { setData(prev => ({ ...prev, Net_Qty_per_P_Sacks: e.target.value, Total_Qty_PSacks: Number((prev?.Blend_Quantity_in_kg ?? 0)/ (e.target.value ?? 1)).toFixed(2) })) }}
+                onChange={(e) => {
+                  setData((prev) => ({
+                    ...prev,
+                    Net_Qty_per_P_Sacks: e.target.value,
+                    Total_Qty_PSacks: Number(
+                      (prev?.Blend_Quantity_in_kg ?? 0) / (e.target.value ?? 1)
+                    ).toFixed(2),
+                  }));
+                }}
                 value={data?.Net_Qty_per_P_Sacks}
                 type="number"
                 className="border border-gray-300 p-3 rounded-lg w-full"
@@ -422,7 +496,9 @@ const Page = () => {
               <label className="block text-gray-700 mb-2">Grade</label>
               <input
                 type="text"
-                onChange={(e) => { setData(prev => ({ ...prev, Grade: e.target.value })) }}
+                onChange={(e) => {
+                  setData((prev) => ({ ...prev, Grade: e.target.value }));
+                }}
                 value={data?.Grade}
                 className="border border-gray-300 p-3 rounded-lg w-full"
                 placeholder="Enter Grade"
@@ -437,7 +513,12 @@ const Page = () => {
               <input
                 type="number"
                 disabled
-                onChange={(e) => { setData(prev => ({ ...prev, Total_Qty_be_packed_in_kgs: e.target.value })) }}
+                onChange={(e) => {
+                  setData((prev) => ({
+                    ...prev,
+                    Total_Qty_be_packed_in_kgs: e.target.value,
+                  }));
+                }}
                 value={data?.Blend_Quantity_in_kg}
                 className="border border-gray-300 p-3 rounded-lg w-full"
                 placeholder="Enter total quantity to be packed"
@@ -449,7 +530,9 @@ const Page = () => {
               <label className="block text-gray-700 mb-2">Brand</label>
               <input
                 type="text"
-                onChange={(e) => { setData(prev => ({ ...prev, Brand: e.target.value })) }}
+                onChange={(e) => {
+                  setData((prev) => ({ ...prev, Brand: e.target.value }));
+                }}
                 value={data?.Brand}
                 className="border border-gray-300 p-3 rounded-lg w-full"
                 placeholder="Enter brand"
@@ -464,7 +547,12 @@ const Page = () => {
               <input
                 type="number"
                 disabled
-                onChange={(e) => { setData(prev => ({ ...prev, Total_Qty_PSacks: e.target.value })) }}
+                onChange={(e) => {
+                  setData((prev) => ({
+                    ...prev,
+                    Total_Qty_PSacks: e.target.value,
+                  }));
+                }}
                 value={data?.Total_Qty_PSacks}
                 className="border border-gray-300 p-3 rounded-lg w-full"
                 placeholder="Enter total quantity of sacks"
@@ -478,7 +566,9 @@ const Page = () => {
               </label>
               <input
                 type="text"
-                onChange={(e) => { setData(prev => ({ ...prev, LOT: e.target.value })) }}
+                onChange={(e) => {
+                  setData((prev) => ({ ...prev, LOT: e.target.value }));
+                }}
                 value={data?.LOT}
                 className="border border-gray-300 p-3 rounded-lg w-full"
                 placeholder="Enter LOT or Batch number"
@@ -490,7 +580,9 @@ const Page = () => {
               <label className="block text-gray-700 mb-2">Origin</label>
               <input
                 type="text"
-                onChange={(e) => { setData(prev => ({ ...prev, Origin: e.target.value })) }}
+                onChange={(e) => {
+                  setData((prev) => ({ ...prev, Origin: e.target.value }));
+                }}
                 value={data?.Origin}
                 className="border border-gray-300 p-3 rounded-lg w-full"
                 placeholder="Enter origin"
@@ -504,8 +596,21 @@ const Page = () => {
               </label>
               <input
                 type="date"
-                onChange={(e) => { setData(prev => ({ ...prev, Production_Date: moment(e.target.value).format("DD-MMM-YYYY") })) }}
-                value={data?.Production_Date ? moment(data.Production_Date, "DD-MMM-YYYY").format("YYYY-MM-DD") : ""}
+                onChange={(e) => {
+                  setData((prev) => ({
+                    ...prev,
+                    Production_Date: moment(e.target.value).format(
+                      "DD-MMM-YYYY"
+                    ),
+                  }));
+                }}
+                value={
+                  data?.Production_Date
+                    ? moment(data.Production_Date, "DD-MMM-YYYY").format(
+                        "YYYY-MM-DD"
+                      )
+                    : ""
+                }
                 className="border border-gray-300 p-3 rounded-lg w-full"
               />
             </div>
@@ -515,8 +620,19 @@ const Page = () => {
               <label className="block text-gray-700 mb-2">Expiry Date</label>
               <input
                 type="date"
-                onChange={(e) => { setData(prev => ({ ...prev, Expiry_Date: moment(e.target.value).format("DD-MMM-YYYY") })) }}
-                value={data?.Expiry_Date ? moment(data.Expiry_Date, "DD-MMM-YYYY").format("YYYY-MM-DD") : ""}
+                onChange={(e) => {
+                  setData((prev) => ({
+                    ...prev,
+                    Expiry_Date: moment(e.target.value).format("DD-MMM-YYYY"),
+                  }));
+                }}
+                value={
+                  data?.Expiry_Date
+                    ? moment(data.Expiry_Date, "DD-MMM-YYYY").format(
+                        "YYYY-MM-DD"
+                      )
+                    : ""
+                }
                 className="border border-gray-300 p-3 rounded-lg w-full"
               />
             </div>
@@ -528,7 +644,12 @@ const Page = () => {
               </label>
               <input
                 type="number"
-                onChange={(e) => { setData(prev => ({ ...prev, Net_Weight_in_kgs: e.target.value })) }}
+                onChange={(e) => {
+                  setData((prev) => ({
+                    ...prev,
+                    Net_Weight_in_kgs: e.target.value,
+                  }));
+                }}
                 value={data?.Net_Weight_in_kgs}
                 className="border border-gray-300 p-3 rounded-lg w-full"
                 placeholder="Enter net weight"
@@ -542,7 +663,12 @@ const Page = () => {
               </label>
               <input
                 type="number"
-                onChange={(e) => { setData(prev => ({ ...prev, Gross_Weight_in_kgs: e.target.value })) }}
+                onChange={(e) => {
+                  setData((prev) => ({
+                    ...prev,
+                    Gross_Weight_in_kgs: e.target.value,
+                  }));
+                }}
                 value={data?.Gross_Weight_in_kgs}
                 className="border border-gray-300 p-3 rounded-lg w-full"
                 placeholder="Enter gross weight"
@@ -550,8 +676,22 @@ const Page = () => {
             </div>
           </div>
         </div>
-          <button className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition mt-4" onClick={()=>{submitData("create")}}>Create</button>
-          <button className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition mt-4" onClick={()=>{submitData("draft")}}>Draft</button>
+        <button
+          className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition mt-4"
+          onClick={() => {
+            submitData("create");
+          }}
+        >
+          Create
+        </button>
+        <button
+          className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition mt-4"
+          onClick={() => {
+            submitData("draft");
+          }}
+        >
+          Draft
+        </button>
       </div>
     </div>
   );
