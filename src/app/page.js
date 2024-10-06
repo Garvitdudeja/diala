@@ -122,7 +122,8 @@ const Page = () => {
       toast.success("Successfully synced")
     }
     catch(e){
-      toast.error("Something Went Wrong While Syncing!")
+      console.log(e.response.data.error)
+      toast.error(e?.response?.data?.error ?? "Something Went Wrong While Syncing!")
       console.log(e)
     }
   }
