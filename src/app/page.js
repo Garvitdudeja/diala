@@ -191,15 +191,14 @@ const Page = () => {
               Sync
             </button>
             <h3 className="text-gray-700">
-              {last?.data?.lastSyncTime?.length > 0
-                ? moment(
-                    last?.data?.lastSyncTime[
-                      last?.data?.lastSyncTime.length - 1
-                    ]
-                  )
-                    .utcOffset("+05:30") // New Delhi time zone
-                    .format("YYYY-MM-DD HH:mm:ss")
-                : "Not Synced Today"}
+            {last?.data?.lastSyncTime?.length > 0 
+  ? moment(last?.data?.lastSyncTime[last?.data?.lastSyncTime.length - 1], 'h:mm:ss A')
+      .add(3, 'hours')  // Manually add the 5 hours
+      .add(30, 'minutes')  // Manually add the 30 minutes
+      .format('h:mm:ss A')
+  : "Not Synced Today"}
+
+
             </h3>
           </div>
         </div>
